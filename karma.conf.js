@@ -1,8 +1,5 @@
-var webpack = require('webpack');
-
 module.exports = function(config) {
   config.set({
-
     basePath: '',
 
     frameworks: ['phantomjs-shim', 'jasmine'],
@@ -15,39 +12,35 @@ module.exports = function(config) {
     ],
 
     preprocessors: {
-      'specs/main.js': ['webpack']
+      'specs/main.js': ['rollup']
     },
 
-    webpack: {
-      cache: true,
-      devtool: 'eval',
-      module: {
-        loaders: [
-          {
-            test: /\.(?:js|es).?$/,
-            loader: 'babel-loader',
-            query: {
-              cacheDirectory: true,
-            },
-            exclude: /(node_modules)/
-          }
-        ]
+    rollupPreprocessor: {
+      rollup: {
+        plugins: [
+          require('rollup-plugin-babel')({
+            presets: [
+              require('babel-preset-es2015-rollup'),
+              require('babel-preset-stage-1'),
+              require('babel-preset-react'),
+            ]
+          }),
+          require('rollup-plugin-node-resolve')({
+            // use "jsnext:main" if possible
+            // – see https://github.com/rollup/rollup/wiki/jsnext:main
+            jsnext: true,
+
+            // use "main" field or index.js, even if it's not an ES6 module
+            // (needs to be converted from CommonJS to ES6
+            // – see https://github.com/rollup/rollup-plugin-commonjs
+            main: true
+          }),
+          require('rollup-plugin-commonjs')()
+        ],
       },
-      plugins: [
-        new webpack.DefinePlugin({
-          'process.env': {
-            NODE_ENV: '"test"'
-          }
-        })
-      ],
-      resolve: {
-        extensions: ['', '.webpack.js', '.web.js', '.js', '.es6']
-      }
-    },
-
-    webpackServer: {
-      stats: {
-        colors: true
+      bundle: {
+        format: 'iife',
+        sourceMap: 'inline'
       }
     },
 
@@ -77,7 +70,7 @@ module.exports = function(config) {
       require('karma-phantomjs-launcher'),
       require('karma-firefox-launcher'),
       require('karma-chrome-launcher'),
-      require('karma-webpack'),
+      require('karma-rollup-preprocessor'),
       require('karma-phantomjs-shim')
     ]
   });

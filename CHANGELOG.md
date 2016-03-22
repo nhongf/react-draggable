@@ -1,31 +1,71 @@
 # Changelog
 
-### 1.3.4 (Mar 5, 2015)
+### 2.0.0 (Mar 22, 2016)
+
+- Breaking change: As we move fully to ES6 modules, the default export is no longer `Draggable`.
+  You should be using the module as follows:
+
+```js
+// Before
+import Draggable from 'react-draggable'; // or...
+import {default as Draggable, DraggableCore} from 'react-draggable';
+// After
+import {Draggable, DraggableCore} from 'react-draggable';
+
+// Before
+var Draggable = require('react-draggable');
+var DraggableCore = require('react-draggable').DraggableCore;
+// AFter
+var Draggable = require('react-draggable').Draggable;
+var DraggableCore = require('react-draggable').DraggableCore;
+```
+
+- Size: Rebuild with Rollup; roughly 25% size reduction:
+
+Before:
+
+```
+45K react-draggable.js
+54K react-draggable.js.map
+25K react-draggable.min.js
+70K react-draggable.min.js.map
+```
+
+After:
+
+```
+37K react-draggable.js
+53K react-draggable.js.map
+19K react-draggable.min.js
+14K react-draggable.min.js.map
+```
+
+### 1.3.4 (Mar 5, 2016)
 
 - Bugfix: Scrolling while dragging caused items to move unpredictably.
 
-### 1.3.3 (Feb 11, 2015)
+### 1.3.3 (Feb 11, 2016)
 
 - Bugfix: #116: Android/Chrome are finicky; give up on canceling ghost clicks entirely.
 
-### 1.3.2 (Feb 11, 2015)
+### 1.3.2 (Feb 11, 2016)
 
 - Bugfix: #116: Child inputs not focusing on touch events.
 
-### 1.3.1 (Feb 10, 2015)
+### 1.3.1 (Feb 10, 2016)
 
 - Internal: Babel 6 and Flow definitions
 - Bugfix: 1.3.0 broke string bounds ('parent', selectors, etc.).
 - Bugfix: 1.3.0 wasn't updating deltaX and deltaY on a bounds hit.
 
-### 1.3.0 (Feb 10, 2015)
+### 1.3.0 (Feb 10, 2016)
 
 - Possibly breaking change: bounds are calculated before `<Draggable>` fires `drag` events, as they should have been.
 - Added `'none'` axis type. This allows using `<Draggable>` somewhat like `<DraggableCore>` - state will be kept
   internally (which makes bounds checks etc possible), but updates will not be flushed to the DOM.
 - Performance tweaks.
 
-### 1.2.0 (Feb 5, 2015)
+### 1.2.0 (Feb 5, 2016)
 
 - Added arbitrary boundary selector. Now you don't have to just use `'parent'`, you can select any element
   on the page, including `'body'`.

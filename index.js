@@ -1,2 +1,2 @@
-module.exports = require('./lib/Draggable').default;
-module.exports.DraggableCore = require('./lib/DraggableCore').default;
+module.exports.Draggable = require('./src/Draggable').default;
+module.exports.DraggableCore = require('./src/DraggableCore').default;

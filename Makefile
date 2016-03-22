@@ -3,27 +3,31 @@
 
 export BIN := $(shell npm bin)
 export NODE_ENV = test
+LIB = lib
 DIST = dist
-LIB = $(DIST)/react-draggable.js
-MIN = $(DIST)/react-draggable.min.js
+SRC_JS = $(shell find src -name "*.es6")
+LIB_JS = $(patsubst src/%.es6,lib/%.js,$(SRC_JS))
+BROWSER = $(DIST)/react-draggable.js
+BROWSER_MIN = $(DIST)/react-draggable.min.js
+BABEL_PRESETS = es2015,stage-1,react
 
-.PHONY: test dev lint build clean
+.PHONY: test dev lint build fast_babel clean release-patch release-minor release-major publish
 
 clean:
-	rm -rf dist
+	rm -rf $(DIST) $(LIB)
 
 lint:
 	# FIXME this is usually global
 	flow check
-	@$(BIN)/eslint lib/* lib/utils/* specs/*
+	@$(BIN)/eslint $(LIB_JS) specs/*
 
-build: $(LIB) $(MIN)
+build: fast_babel $(BROWSER) $(BROWSER_MIN)
 
 # Allows usage of `make install`, `make link`
 install link:
 	@npm $@
 
-dist/%.min.js: $(LIB) $(BIN)
+dist/%.min.js: dist/%.js $(BIN)
 	@$(BIN)/uglifyjs $< \
 	  --output $@ \
 	  --source-map $@.map \
@@ -32,9 +36,16 @@ dist/%.min.js: $(LIB) $(BIN)
 	  --compress warnings=false
 
 dist/%.js: $(BIN)
-	@$(BIN)/webpack --devtool source-map
+	@$(BIN)/rollup -c
 
-test: $(BIN)
+fast_babel: $(BIN)
+	@$(BIN)/babel --presets $(BABEL_PRESETS) src/ --out-dir lib/
+
+$(LIB_JS): lib/%.js: src/%.es6
+	@mkdir -p $(dir $@)
+	@$(BIN)/babel --presets $(BABEL_PRESETS) $< --out-file $@
+
+test: $(LIB_JS) $(BIN)
 	@$(BIN)/karma start --single-run
 
 dev: $(BIN)

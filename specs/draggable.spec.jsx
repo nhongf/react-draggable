@@ -2,10 +2,10 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var TestUtils = require('react/lib/ReactTestUtils');
-var Draggable = require('../index');
-var DraggableCore = require('../index').DraggableCore;
+var Draggable = require('../lib/Draggable').default;
+var DraggableCore = require('../lib/DraggableCore').default;
 var _ = require('lodash');
-var browserPrefix = require('../lib/utils/getPrefix.es6').default;
+var browserPrefix = require('../lib/utils/getPrefix').default;
 var dashedBrowserPrefix = browserPrefix ? '-' + browserPrefix.toLowerCase() + '-' : '';
 
 /*global describe,it,expect,afterEach */
