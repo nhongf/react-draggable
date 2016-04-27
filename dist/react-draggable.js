@@ -1001,6 +1001,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      (0, _domFns.addEvent)(document, dragEventFor.move, _this.handleDrag);
 	      (0, _domFns.addEvent)(document, dragEventFor.stop, _this.handleDragStop);
 	    }, _this.handleDrag = function (e) {
+	    	e.preventDefault();
 	      // Return if this is a touch event, but not the correct one for this element
 	      if (e.targetTouches && e.targetTouches[0].identifier !== _this.state.touchIdentifier) return;
 	
