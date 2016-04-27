@@ -1,20 +1,25 @@
 // @flow
+import React from 'react';
 import {isNum, int} from './shims';
 import ReactDOM from 'react-dom';
-import {innerWidth, innerHeight, offsetXYFromParentOf, outerWidth, outerHeight} from './domFns';
+import {innerWidth, innerHeight, outerWidth, outerHeight} from './domFns';
 
 import type Draggable from '../Draggable';
-import type {Bounds, ControlPosition, DraggableData} from './types';
-import type DraggableCore from '../DraggableCore';
+export type ControlPosition = {
+  clientX: number, clientY: number
+};
+export type Bounds = {
+  left: number, top: number, right: number, bottom: number
+};
 
-export function getBoundPosition(draggable: Draggable, x: number, y: number): [number, number] {
+export function getBoundPosition(draggable: Draggable, clientX: number, clientY: number): [number, number] {
   // If no bounds, short-circuit and move on
-  if (!draggable.props.bounds) return [x, y];
+  if (!draggable.props.bounds) return [clientX, clientY];
 
   // Clone new bounds
   let {bounds} = draggable.props;
   bounds = typeof bounds === 'string' ? bounds : cloneBounds(bounds);
-  const node = ReactDOM.findDOMNode(draggable);
+  let node = ReactDOM.findDOMNode(draggable);
 
   if (typeof bounds === 'string') {
     let boundNode;
@@ -24,8 +29,8 @@ export function getBoundPosition(draggable: Draggable, x: number, y: number): [n
       boundNode = document.querySelector(bounds);
       if (!boundNode) throw new Error('Bounds selector "' + bounds + '" could not find an element.');
     }
-    const nodeStyle = window.getComputedStyle(node);
-    const boundNodeStyle = window.getComputedStyle(boundNode);
+    let nodeStyle = window.getComputedStyle(node);
+    let boundNodeStyle = window.getComputedStyle(boundNode);
     // Compute bounds. This is a pain with padding and offsets but this gets it exactly right.
     bounds = {
       left: -node.offsetLeft + int(boundNodeStyle.paddingLeft) +
@@ -38,70 +43,36 @@ export function getBoundPosition(draggable: Draggable, x: number, y: number): [n
   }
 
   // Keep x and y below right and bottom limits...
-  if (isNum(bounds.right)) x = Math.min(x, bounds.right);
-  if (isNum(bounds.bottom)) y = Math.min(y, bounds.bottom);
+  if (isNum(bounds.right)) clientX = Math.min(clientX, bounds.right);
+  if (isNum(bounds.bottom)) clientY = Math.min(clientY, bounds.bottom);
 
   // But above left and top limits.
-  if (isNum(bounds.left)) x = Math.max(x, bounds.left);
-  if (isNum(bounds.top)) y = Math.max(y, bounds.top);
+  if (isNum(bounds.left)) clientX = Math.max(clientX, bounds.left);
+  if (isNum(bounds.top)) clientY = Math.max(clientY, bounds.top);
 
-  return [x, y];
+  return [clientX, clientY];
 }
 
 export function snapToGrid(grid: [number, number], pendingX: number, pendingY: number): [number, number] {
-  const x = Math.round(pendingX / grid[0]) * grid[0];
-  const y = Math.round(pendingY / grid[1]) * grid[1];
+  let x = Math.round(pendingX / grid[0]) * grid[0];
+  let y = Math.round(pendingY / grid[1]) * grid[1];
   return [x, y];
 }
 
-export function canDragX(draggable: Draggable): boolean {
+export function canDragX(draggable: React.Component): boolean {
   return draggable.props.axis === 'both' || draggable.props.axis === 'x';
 }
 
-export function canDragY(draggable: Draggable): boolean {
+export function canDragY(draggable: React.Component): boolean {
   return draggable.props.axis === 'both' || draggable.props.axis === 'y';
 }
 
-// Get {x, y} positions from event.
-export function getControlPosition(e: MouseEvent, draggableCore: DraggableCore): ControlPosition {
-  return offsetXYFromParentOf(e, ReactDOM.findDOMNode(draggableCore));
-}
-
-// Create an data object exposed by <DraggableCore>'s events
-export function createCoreData(draggable: DraggableCore, x: number, y: number): DraggableData {
-  // State changes are often (but not always!) async. We want the latest value.
-  const state = draggable._pendingState || draggable.state;
-  const isStart = !isNum(state.lastX);
-
-  if (isStart) {
-    // If this is our first move, use the x and y as last coords.
-    return {
-      node: ReactDOM.findDOMNode(this),
-      deltaX: 0, deltaY: 0,
-      lastX: x, lastY: y,
-      x: x, y: y
-    };
-  } else {
-    // Otherwise calculate proper values.
-    return {
-      node: ReactDOM.findDOMNode(this),
-      deltaX: x - state.lastX, deltaY: y - state.lastY,
-      lastX: state.lastX, lastY: state.lastY,
-      x: x, y: y
-    };
-  }
-}
-
-// Create an data exposed by <Draggable>'s events
-export function createDraggableData(draggable: Draggable, coreData: DraggableData): DraggableData {
+// Get {clientX, clientY} positions from event.
+export function getControlPosition(e: Event): ControlPosition {
+  let position = (e.targetTouches && e.targetTouches[0]) || e;
   return {
-    node: coreData.node,
-    x: draggable.state.x + coreData.deltaX,
-    y: draggable.state.y + coreData.deltaY,
-    deltaX: coreData.deltaX,
-    deltaY: coreData.deltaY,
-    lastX: draggable.state.x,
-    lastY: draggable.state.y
+    clientX: position.clientX,
+    clientY: position.clientY
   };
 }
 

@@ -1,66 +1,12 @@
 # Changelog
 
-### 2.0.0-beta3 (Apr 19, 2016)
-
-- Flow comments are now in the build. Other projects, such as React-Grid-Layout and React-Resizable, will
-  rely on them in their build and export their own comments.
-
-### 2.0.0-beta2 (Apr 14, 2016)
-
-- We're making a small deviation from React Core's controlled vs. uncontrolled scheme; for convenience,
-  `<Draggable>`s with a `position` property will still be draggable, but will revert to their old position
-  on drag stop. Attach an `onStop` or `onDrag` handler to synchronize state.
-  - A warning has been added informing users of this. If you make `<Draggable>` controlled but no callback
-    handlers, a warning will be printed.
-
-### 2.0.0-beta1 (Apr 14, 2016)
-
-- Due to API changes, this is a major release.
-
-#### Breaking Changes:
-
-- Both `<DraggableCore>` and `<Draggable>` have had their callback types changed and unified.
-
-```js
-type DraggableEventHandler = (e: Event, data: DraggableData) => void | false;
-type DraggableData = {
-  node: HTMLElement,
-  // lastX + deltaX === x
-  x: number, y: number,
-  deltaX: number, deltaY: number,
-  lastX: number, lastY: number
-};
-```
-
-- The `start` option has been renamed to `defaultPosition`.
-- The `zIndex` option has been removed.
-
-#### Possibly Breaking Changes:
-
-- When determining deltas, we now use a new method that checks the delta against the Draggable's `offsetParent`.
-  This method allows us to support arbitrary nested scrollable ancestors without scroll handlers!
-  - This may cause issues in certain layouts. If you find one, please open an issue.
-
-#### Enhancements:
-
-- `<Draggable>` now has a `position` attribute. Its relationship to `defaultPosition` is much like
-  `value` to `defaultValue` on React `<input>` nodes. If set, the position is fixed and cannot be mutated.
-  If empty, the component will manage its own state. See [#140](https://github.com/mzabriskie/react-draggable/pull/140)
-  for more info & motivations.
-- Misc. bugfixes.
-
-### 1.4.0-beta1 (Apr 13, 2016)
-
-- Major improvements to drag tracking that now support even nested scroll boxes.
-  - This revision is being done as a pre-release to ensure there are no unforeseen issues with the offset changes.
-
 ### 1.3.7 (Apr 8, 2016)
 
 - Fix `user-select` prefixing, which may be different than the prefix required for `transform`.
 
 ### 1.3.6 (Apr 8, 2016)
 
-- Republished after 1.3.5 contained a bundling error.
+- Republish after 1.3.5 contained a bundling error.
 
 ### 1.3.5 (Apr 8, 2016)
 
